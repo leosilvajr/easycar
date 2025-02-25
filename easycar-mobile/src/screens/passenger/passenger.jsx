@@ -1,10 +1,10 @@
 import { Text } from "react-native"
+import MyButton from "../../components/mybutton/mybutton.jsx"
 
 function Passenger() {
     return <>
-        <Text style={{fontSize: 50}}>Tela Passenger</Text>
-        <Text style={{fontSize: 50}}>Mapa</Text>
-        <Text style={{fontSize: 50}}>Origem/Destino</Text>
+        
+        <MyButton text="Confirmar" theme="red" />
     </>
 }
 
