@@ -4,7 +4,7 @@ import Passenger from "./src/screens/passenger/passenger";
 
 export default function App() {
   return <>
-    <Passenger/>
+    <Home/>
   </>;
 }
 
