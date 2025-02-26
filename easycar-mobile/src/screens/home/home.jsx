@@ -3,14 +3,14 @@ import icons from "../../constants/icons";
 import { styles } from "./home.style";
  
 
-function Home() {
+function Home(props) {
 
     function OpenPassenger(){
-        Alert.alert("Passageiro")
+        props.navigation.navigate("passenger")
     }
 
     function OpenRide(){
-        Alert.alert("Motorista")
+        props.navigation.navigate("ride")
     }
 
     return <ImageBackground source={icons.bg} resizeMode="cover" style={styles.bg}>
