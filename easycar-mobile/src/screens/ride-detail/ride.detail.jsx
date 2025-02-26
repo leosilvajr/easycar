@@ -1,11 +1,11 @@
 import { Text, View, TextInput } from "react-native";
 import MyButton from "../../components/mybutton/mybutton.jsx";
 import MapView, { PROVIDER_DEFAULT, Marker } from "react-native-maps";
-import { styles } from "./passenger.styles.js";
+import { styles } from "./ride-detail.style.js";
 import { useState } from "react";
 import icons from "../../constants/icons";
 
-function Passenger(props) {
+function RideDetail(props) {
   // Variável para armazenar nossa localização
   const [myLocation, setMyLocation] = useState({
     // Só consigo setar a variável myLocation com a função setMyLocation
@@ -53,16 +53,11 @@ function Passenger(props) {
             <TextInput placeholder="" style={styles.input} />
         </View>
 
-        <View style={styles.footerFields}>
-            <Text style={styles.text}>Motorista</Text>
-            <TextInput placeholder="" style={styles.input} />
-        </View>
-
       </View>
 
-      <MyButton text="Confirmar" theme="red"/>
+      <MyButton text="Aceitar"/>
     </View>
   );
 }
 
-export default Passenger;
+export default RideDetail;
