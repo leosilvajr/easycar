@@ -6,7 +6,7 @@ import icons from "../../constants/icons.js"
 
 function Ride(props) {
 
-    function ClickRide(id){ //Receber o parametro id da Corrida que eu clicar
+    function ClickRide(id){ //Receber o parametro id da Corrida que eu clicar.
 
         props.navigation.navigate("ride-detail")
     }
