@@ -7,157 +7,146 @@ import icons from "../../constants/icons";
 
 import { getCurrentPositionAsync, 
          requestForegroundPermissionsAsync, 
-         reverseGeocodeAsync} from "expo-location";
+         reverseGeocodeAsync } from "expo-location";
 
 function Passenger(props) {
-  // Variável para armazenar nossa localização
+
+  const userId = 1;
   const [myLocation, setMyLocation] = useState({ });
   const [title, setTitle] = useState("");
   const [pickupAddress, setPickupAddress] = useState("");
   const [dropoffAddress, setDropoffAddress] = useState("");
 
-  async function RequestRideFromUser(){
-    //Acessa os dados da API
-    const response = { }
-
-  //   const response = {
-  //     ride_id: 1,
-  //     passenger_user_id: 1,
-  //     passenger_name: "Heber Stein Mazutti",
-  //     passenger_phone: "(11) 99999-9999",
-  //     pickup_address: "Praça Charles Miller - Pacaembu",
-  //     pickup_date: "2025-02-19",
-  //     pickup_latitude: "-23.543132",
-  //     pickup_longitude: "-46.665389",
-  //     dropoff_address: "Shopping Center Norte",
-  //     status: "P",
-  //     driver_user_id: null,
-  //     driver_name: null,
-  //     driver_phone: null
-  // }
+  // Função assíncrona para buscar os dados da corrida do usuário na API
+  
+  async function RequestRideFromUser() {
+    const response = { };
     return response;
-
   }
-
+  // Função assíncrona para solicitar permissão de localização e obter coordenadas
   async function RequestPermissionAndGetLocation() {
-
-    const {granted} = await requestForegroundPermissionsAsync(); //granted = acesso ao GPS 
-
-    if (granted == true) {
-        const currentPosition = await getCurrentPositionAsync();
-
-        if (currentPosition.coords) 
-          return currentPosition.coords;
-        else
-          return {};
+    const { granted } = await requestForegroundPermissionsAsync(); // Verifica se o usuário concedeu permissão
+    
+    if (granted) {
+      const currentPosition = await getCurrentPositionAsync(); // Obtém a posição atual
       
+      if (currentPosition.coords) 
+        return currentPosition.coords;
+      else 
+        return {};
     } else {
-      return {};
+      return {}; // Retorna um objeto vazio caso a permissão não seja concedida
     }
   }
 
+  // Função assíncrona para obter o nome do endereço com base na latitude e longitude
   async function ResquestAdressName(latitude, longitude) {
     const response = await reverseGeocodeAsync({
       latitude: latitude,
       longitude: longitude
     });
 
-    if (response[0].street && response[0].streetNumber && response[0].district)  {
+    if (response[0].street && response[0].streetNumber && response[0].district) {
       setPickupAddress(response[0].street + ", " + response[0].streetNumber + " - " + response[0].district);
     }
   }
 
+  // Função que carrega a tela, buscando a corrida do usuário e sua localização
   async function LoadScreen() {
-    //Buscar dados de corrida aberta na API para o usuario
+    // Buscar dados de corrida aberta na API para o usuário
     const response = await RequestRideFromUser();
 
-
     if (!response.ride_id) {
-      //Se ele nao encontrar uma corrida aberta para ele faça a requisição da localização dele
-
+      // Se não houver corrida aberta, solicita a localização do usuário
       const location = await RequestPermissionAndGetLocation();
 
       if (location.latitude) {
         setTitle("Encontre sua carona agora");
         setMyLocation(location);   
 
-        //Buscar o nome da rua atraves da latitude e longitude
+        // Buscar o nome da rua através das coordenadas
         ResquestAdressName(location.latitude, location.longitude);
-
-      } else 
-        Alert.alert("Não foi possivel obter sua localização");
-      
-
-    } else {
-
+      } else {
+        Alert.alert("Não foi possível obter sua localização");
+      }
     }
   }
 
+  // Função para solicitar uma nova corridaa
+  async function AskForRide() {
+    const json = { 
+      passenger_id: userId,
+      pickup_address: pickupAddress,
+      dropoff_address: dropoffAddress,
+      pickup_latitude: myLocation.latitude,
+      pickup_longitude: myLocation.longitude
+    };
+
+    console.log("Fazer POST para o servidor: ",json);
+    props.navigation.goBack();
+  }
+
+  // useEffect para carregar a tela quando o componente for montado
   useEffect(() => {
     LoadScreen();
   }, []);
 
   return (
     <View style={styles.container}>
-      {myLocation.latitude ? <>
-        <MapView
-        style={styles.map}
-        provider={PROVIDER_DEFAULT}
-        initialRegion={{
-          latitude: myLocation.latitude,
-          longitude: myLocation.longitude,
-          latitudeDelta: 0.004,
-          longitudeDelta: 0.004,
-        }}
-      >
-        <Marker
-          coordinate={{
-            latitude: myLocation.latitude,
-            longitude: myLocation.longitude,
-          }}
-          title="Ary Gilberto Lindenberg Girão"
-          description="Residencia do Leo e da Karina"
-          image={icons.location}
-          style={styles.marker}
-        />
-        </MapView>
+      {myLocation.latitude ? (
+        <>
+          {/* Mapa exibindo a localização do usuário */}
+          <MapView
+            style={styles.map}
+            provider={PROVIDER_DEFAULT}
+            initialRegion={{
+              latitude: myLocation.latitude,
+              longitude: myLocation.longitude,
+              latitudeDelta: 0.004,
+              longitudeDelta: 0.004,
+            }}
+          >
+            {/* Marcador da posição atual do usuário */}
+            <Marker
+              coordinate={{
+                latitude: myLocation.latitude,
+                longitude: myLocation.longitude,
+              }}
+              title="Ary Gilberto Lindenberg Girão"
+              description="Residência do Leo e da Karina"
+              image={icons.location}
+              style={styles.marker}
+            />
+          </MapView>
 
-        <View style={styles.footer} >
-
-          <View style={styles.footerText}>
+          {/* Rodapé com informações de origem e destino */}
+          <View style={styles.footer}>
+            <View style={styles.footerText}>
               <Text style={styles.text}>{title}</Text>
-          </View>
+            </View>
 
-          <View style={styles.footerFields}>
+            <View style={styles.footerFields}>
               <Text style={styles.text}>Origem</Text>
-              <TextInput placeholder="" style={styles.input} value={pickupAddress} />
-          </View>
+              <TextInput placeholder="" style={styles.input} value={pickupAddress} 
+              onChangeText={(text) => setPickupAddress(text)}/>
+            </View>
 
-          <View style={styles.footerFields}>
+            <View style={styles.footerFields}>
               <Text style={styles.text}>Destino</Text>
-              <TextInput placeholder="" style={styles.input} value={dropoffAddress} />
+              <TextInput placeholder="" style={styles.input} value={dropoffAddress} 
+              onChangeText={(text) => setDropoffAddress(text)}/>
+            </View>
           </View>
 
-          {/* <View style={styles.footerFields}>
-              <Text style={styles.text}>Motorista</Text>
-              <TextInput placeholder="" style={styles.input} />
-          </View> */}
-
-        </View>
-
-        <MyButton text="Confirmar" theme="default"/>
-      </> 
-      
-      :
-      
-      <>
+          {/* Botão de confirmação da carona */}
+          <MyButton text="Confirmar" theme="default" onClick={AskForRide}/>
+        </>
+      ) : (
+        /* Exibe um indicador de carregamento enquanto a localização está sendo obtida */
         <View style={styles.loading}>
           <ActivityIndicator size="large" />
         </View>
-      </>}
-
-
-
+      )}
     </View>
   );
 }
