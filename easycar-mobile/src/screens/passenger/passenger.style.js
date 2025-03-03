@@ -32,5 +32,11 @@ export const styles = {
         alignItems: "center",
         justifyContent: "center",
         marginTop: 15
+    },
+
+    loading:{
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center"
     }
 };
