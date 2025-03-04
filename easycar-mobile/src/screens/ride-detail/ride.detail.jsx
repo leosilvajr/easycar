@@ -2,16 +2,78 @@ import { Text, View, TextInput } from "react-native";
 import MyButton from "../../components/mybutton/mybutton.jsx";
 import MapView, { PROVIDER_DEFAULT, Marker } from "react-native-maps";
 import { styles } from "./ride-detail.style.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import icons from "../../constants/icons";
 
 function RideDetail(props) {
-  // Variável para armazenar nossa localização
-  const [myLocation, setMyLocation] = useState({
-    // Só consigo setar a variável myLocation com a função setMyLocation
-    latitude: 2,
-    longitude: 20,
-  });
+
+  const rideId = props.route.params.rideId;
+  const userId = props.route.params.userId;
+
+  const [title, setTitle] = useState("");
+  const [ride , setRide] = useState({});
+  const [status, setStatus] = useState("");
+
+  async function RequestRideDetails() {
+            
+        const response = {
+            ride_id: 1,
+            passenger_user_id: 1,
+            passenger_name: "Heber Stein Mazutti",
+            passenger_phone: "(11) 99999-9999",
+            pickup_address: "Praça Charles Miller - Pacaembu",
+            pickup_date: "2025-02-19",
+            pickup_latitude: "-23.543132",
+            pickup_longitude: "-46.665389",
+            dropoff_address: "Shopping Center Norte",
+            status: "P",
+            driver_user_id: null,
+            driver_name: null,
+            driver_phone: null
+        }
+
+      //   const response = {
+      //     ride_id: 1,
+      //     passenger_user_id: 1,
+      //     passenger_name: "Heber Stein Mazutti",
+      //     passenger_phone: "(11) 99999-9999",
+      //     pickup_address: "Praça Charles Miller - Pacaembu",
+      //     pickup_date: "2025-02-19",
+      //     pickup_latitude: "-23.543132",
+      //     pickup_longitude: "-46.665389",
+      //     dropoff_address: "Shopping Center Norte",
+      //     status: "A",
+      //     driver_user_id: 2,
+      //     driver_name: "João Martins",
+      //     driver_phone: "(11) 5555-5555"
+      // }
+
+      if (response.passenger_name) {
+        setTitle(response.passenger_name + " - " + response.passenger_phone);
+        setRide(response);
+        setStatus(response.status);
+      }
+  }
+
+  async function AcceptRide() {
+    const json = {
+      driver_user_id: userId,
+      ride_id: rideId
+    }
+    props.navigation.goBack();
+  }
+
+  async function CancelRide() {
+    const json = {
+      driver_user_id: userId,
+      ride_id: rideId
+    }
+    props.navigation.goBack();
+  }
+
+  useEffect(() => {
+    RequestRideDetails();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -19,19 +81,19 @@ function RideDetail(props) {
         style={styles.map}
         provider={PROVIDER_DEFAULT}
         initialRegion={{
-          latitude: -20.612668,
-          longitude: -49.655839,
+          latitude: Number(ride.pickup_latitude), 
+          longitude: Number(ride.pickup_longitude),
           latitudeDelta: 0.004,
           longitudeDelta: 0.004,
         }}
       >
         <Marker
           coordinate={{
-            latitude: -20.612668,
-            longitude: -49.655839,
+            latitude: Number(ride.pickup_latitude), 
+            longitude: Number(ride.pickup_longitude)
           }}
-          title="Ary Gilberto Lindenberg Girão"
-          description="Residencia do Leo e da Karina"
+          title={ride.passenger_name}
+          description={ride.pickup_address}
           image={icons.location}
           style={styles.marker}
         />
@@ -40,22 +102,23 @@ function RideDetail(props) {
       <View style={styles.footer} >
 
         <View style={styles.footerText}>
-            <Text style={styles.text}>Encontre sua carona</Text>
+            <Text style={styles.text}>{title}</Text>
         </View>
 
         <View style={styles.footerFields}>
             <Text style={styles.text}>Origem</Text>
-            <TextInput placeholder="" style={styles.input} />
+            <TextInput placeholder="" style={styles.input} value={ride.pickup_address}  editable={false} />
         </View>
 
         <View style={styles.footerFields}>
             <Text style={styles.text}>Destino</Text>
-            <TextInput placeholder="" style={styles.input} />
+            <TextInput placeholder="" style={styles.input} value={ride.dropoff_address} editable={false}/>
         </View>
 
       </View>
-
-      <MyButton text="Aceitar"/>
+      
+          {status == "P" && <MyButton text="Aceitar" theme="default" onClick={AcceptRide}/>}
+          {status == "A" && <MyButton text="Cancelar" theme="red" onClick={CancelRide}/>}
     </View>
   );
 }

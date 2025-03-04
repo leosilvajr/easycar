@@ -3,17 +3,33 @@ import{ styles } from "./ride.style.js"
 import {json_rides} from "../../constants/dados"
 import { TouchableOpacity } from "react-native"
 import icons from "../../constants/icons.js"
+import { useEffect, useState } from "react"
 
 function Ride(props) {
 
+    const userId = 2;
+    const [rides, setRides] = useState([])
+
     function ClickRide(id){ //Receber o parametro id da Corrida que eu clicar.
 
-        props.navigation.navigate("ride-detail")
+        props.navigation.navigate("ride-detail", {
+            rideId: id,
+            userId, //ou userId: userId
+            
+        });
     }
+
+    async function RequestRides() {
+        setRides(json_rides);
+    }
+
+    useEffect(() => {
+        RequestRides();
+    }, []);
 
 
     return <View style={styles.container}>
-            <FlatList data={json_rides}
+            <FlatList data={rides}
                 keyExtractor={(item) => item.ride_id}
                 showsVerticalScrollIndicator={false}
                 renderItem={({ item }) => {
