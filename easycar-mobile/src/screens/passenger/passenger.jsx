@@ -16,13 +16,29 @@ function Passenger(props) {
   const [title, setTitle] = useState("");
   const [pickupAddress, setPickupAddress] = useState("");
   const [dropoffAddress, setDropoffAddress] = useState("");
+  const [status, setStatus] = useState("");
+  const [rideId, setRideId] = useState(0);
 
   // Função assíncrona para buscar os dados da corrida do usuário na API
-  
   async function RequestRideFromUser() {
-    const response = { };
+    const response = {
+      ride_id: 1,
+      passenger_user_id: 1,
+      passenger_name: "Heber Stein Mazutti",
+      passenger_phone: "(11) 99999-9999",
+      pickup_address: "Praça Charles Miller - Pacaembu",
+      pickup_date: "2025-02-19",
+      pickup_latitude: "-23.543132",
+      pickup_longitude: "-46.665389",
+      dropoff_address: "Shopping Center Norte",
+      status: "P",
+      driver_user_id: null,
+      driver_name: null,
+      driver_phone: null
+  }
     return response;
   }
+
   // Função assíncrona para solicitar permissão de localização e obter coordenadas
   async function RequestPermissionAndGetLocation() {
     const { granted } = await requestForegroundPermissionsAsync(); // Verifica se o usuário concedeu permissão
@@ -69,6 +85,18 @@ function Passenger(props) {
       } else {
         Alert.alert("Não foi possível obter sua localização");
       }
+    } else {
+      // Se houver corrida aberta, navega para a tela de detalhes da corrida
+      setTitle(response.status == "P" ? "Aguardando uma carona" : "Encontre sua carona agora");
+      setMyLocation({
+        latitude: Number(response.pickup_latitude), 
+        longitude: Number(response.pickup_longitude)
+      });   
+    //Ajustar nome de origem e destino
+    setPickupAddress(response.pickup_address);
+    setDropoffAddress(response.dropoff_address);
+    setStatus(response.status);
+    setRideId(response.ride_id);
     }
   }
 
@@ -83,6 +111,24 @@ function Passenger(props) {
     };
 
     console.log("Fazer POST para o servidor: ",json);
+    props.navigation.goBack();
+  }
+
+  async function CancelRide() {
+    const json = {
+      passenger_user_id: userId,
+      ride_id: rideId
+    }
+    console.log("Cancelar Carona: ",json);
+    props.navigation.goBack();
+  }
+
+  async function FinishRide(){
+    const json = {
+      passenger_user_id: userId,
+      ride_id: rideId
+    }
+    console.log("Finalizar Carona: ",json);
     props.navigation.goBack();
   }
 
@@ -128,18 +174,21 @@ function Passenger(props) {
             <View style={styles.footerFields}>
               <Text style={styles.text}>Origem</Text>
               <TextInput placeholder="" style={styles.input} value={pickupAddress} 
-              onChangeText={(text) => setPickupAddress(text)}/>
+              onChangeText={(text) => setPickupAddress(text)}
+              editable={status == "" ? true : false}/>
             </View>
 
             <View style={styles.footerFields}>
               <Text style={styles.text}>Destino</Text>
               <TextInput placeholder="" style={styles.input} value={dropoffAddress} 
-              onChangeText={(text) => setDropoffAddress(text)}/>
+              onChangeText={(text) => setDropoffAddress(text)}
+              editable={status == "" ? true : false}/>
             </View>
-          </View>
-
-          {/* Botão de confirmação da carona */}
-          <MyButton text="Confirmar" theme="default" onClick={AskForRide}/>
+          </View>        
+          {status == "" && <MyButton text="Confirmar" theme="default" onClick={AskForRide}/>}     
+          {status == "P" && <MyButton text="Cancelar" theme="red" onClick={CancelRide}/>}
+          {status == "A" && <MyButton text="Finalizar Carona" theme="red" onClick={FinishRide}/>}
+          
         </>
       ) : (
         /* Exibe um indicador de carregamento enquanto a localização está sendo obtida */
