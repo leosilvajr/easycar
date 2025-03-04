@@ -18,24 +18,43 @@ function Passenger(props) {
   const [dropoffAddress, setDropoffAddress] = useState("");
   const [status, setStatus] = useState("");
   const [rideId, setRideId] = useState(0);
+  const [driverName, setDriverName] = useState("");
 
   // Função assíncrona para buscar os dados da corrida do usuário na API
   async function RequestRideFromUser() {
-    const response = {
-      ride_id: 1,
-      passenger_user_id: 1,
-      passenger_name: "Heber Stein Mazutti",
-      passenger_phone: "(11) 99999-9999",
-      pickup_address: "Praça Charles Miller - Pacaembu",
-      pickup_date: "2025-02-19",
-      pickup_latitude: "-23.543132",
-      pickup_longitude: "-46.665389",
-      dropoff_address: "Shopping Center Norte",
-      status: "P",
-      driver_user_id: null,
-      driver_name: null,
-      driver_phone: null
-  }
+
+  //   const response = {
+  //     ride_id: 1,
+  //     passenger_user_id: 1,
+  //     passenger_name: "Heber Stein Mazutti",
+  //     passenger_phone: "(11) 99999-9999",
+  //     pickup_address: "Praça Charles Miller - Pacaembu",
+  //     pickup_date: "2025-02-19",
+  //     pickup_latitude: "-23.543132",
+  //     pickup_longitude: "-46.665389",
+  //     dropoff_address: "Shopping Center Norte",
+  //     status: "P",
+  //     driver_user_id: null,
+  //     driver_name: null,
+  //     driver_phone: null
+  // }
+
+  const response = {
+    ride_id: 1,
+    passenger_user_id: 1,
+    passenger_name: "Heber Stein Mazutti",
+    passenger_phone: "(11) 99999-9999",
+    pickup_address: "Praça Charles Miller - Pacaembu",
+    pickup_date: "2025-02-19",
+    pickup_latitude: "-23.543132",
+    pickup_longitude: "-46.665389",
+    dropoff_address: "Shopping Center Norte",
+    status: "A",
+    driver_user_id: 2,
+    driver_name: "João Martins",
+    driver_phone: "(11) 5555-5555"
+}
+
     return response;
   }
 
@@ -97,6 +116,7 @@ function Passenger(props) {
     setDropoffAddress(response.dropoff_address);
     setStatus(response.status);
     setRideId(response.ride_id);
+    setDriverName(response.driver_name + " - " + response.driver_phone);
     }
   }
 
@@ -184,6 +204,17 @@ function Passenger(props) {
               onChangeText={(text) => setDropoffAddress(text)}
               editable={status == "" ? true : false}/>
             </View>
+
+            {
+              status == "A" &&
+              <View style={styles.footerFields}>
+                <Text style={styles.text}>Motorista</Text>
+                <TextInput placeholder="" style={styles.input} value={driverName} 
+                editable={false}/>
+              </View>
+            }  
+
+
           </View>        
           {status == "" && <MyButton text="Confirmar" theme="default" onClick={AskForRide}/>}     
           {status == "P" && <MyButton text="Cancelar" theme="red" onClick={CancelRide}/>}
